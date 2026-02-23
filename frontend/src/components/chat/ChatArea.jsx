@@ -19,10 +19,8 @@ export default function ChatArea() {
       setMessages(res.data.reverse())
     })
 
-    // connect websocket
-    const ws = new WebSocket(
-      `ws://localhost:8000/ws/${activeRoom.id}?token=${token}`
-    )
+    const wsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:8000'
+    const ws = new WebSocket(`${wsUrl}/ws/${activeRoom.id}?token=${token}`)
     wsRef.current = ws
 
     ws.onmessage = (e) => {
@@ -119,11 +117,10 @@ export default function ChatArea() {
                 <span className="text-gray-400 text-xs mb-1">
                   {isMe ? 'You' : msg.username}
                 </span>
-                <div className={`px-4 py-2 rounded-2xl text-sm ${
-                  isMe
+                <div className={`px-4 py-2 rounded-2xl text-sm ${isMe
                     ? 'bg-purple-600 text-white rounded-tr-none'
                     : 'bg-gray-700 text-gray-100 rounded-tl-none'
-                }`}>
+                  }`}>
                   {msg.content}
                 </div>
               </div>

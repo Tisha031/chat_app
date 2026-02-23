@@ -1,8 +1,9 @@
 from pydantic_settings import BaseSettings
+from typing import Optional
 
 class Settings(BaseSettings):
     APP_NAME: str = "ChatApp"
-    DEBUG: bool = True
+    DEBUG: bool = False
 
     SECRET_KEY: str
     ALGORITHM: str = "HS256"
@@ -19,6 +20,6 @@ class Settings(BaseSettings):
     SMTP_USER: str = ""
     SMTP_PASSWORD: str = ""
 
-    model_config = {"env_file": ".env"}   # ← replaces old class Config
+    model_config = {"env_file": ".env", "extra": "ignore"}
 
 settings = Settings()
