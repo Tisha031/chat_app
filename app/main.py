@@ -11,6 +11,24 @@ from app.api.v1 import auth, rooms, chat, users
 
 limiter = Limiter(key_func=get_remote_address)
 
+from contextlib import asynccontextmanager
+from app.db.session import AsyncSessionLocal
+from app.services.room_service import create_public_servers
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    async with AsyncSessionLocal() as db:
+        await create_public_servers(db)
+    yield
+
+app = FastAPI(
+    title="ChatApp API",
+    version="1.0.0",
+    docs_url=None,
+    redoc_url=None,
+    lifespan=lifespan,
+)
+
 app = FastAPI(
     title="ChatApp API",
     version="1.0.0",

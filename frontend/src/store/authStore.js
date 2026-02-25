@@ -1,22 +1,34 @@
 import { create } from 'zustand'
+import api from '../api/client'
 
 const useAuthStore = create((set) => ({
   user: null,
-  token: localStorage.getItem('access_token'),
+  token: sessionStorage.getItem('access_token'),
 
   setUser: (user) => set({ user }),
 
   login: (user, accessToken, refreshToken) => {
-    localStorage.setItem('access_token', accessToken)
-    localStorage.setItem('refresh_token', refreshToken)
+    sessionStorage.setItem('access_token', accessToken)
+    sessionStorage.setItem('refresh_token', refreshToken)
     set({ user, token: accessToken })
   },
 
   logout: () => {
-    localStorage.removeItem('access_token')
-    localStorage.removeItem('refresh_token')
+    sessionStorage.removeItem('access_token')
+    sessionStorage.removeItem('refresh_token')
     set({ user: null, token: null })
   },
+
+  fetchMe: async () => {
+    try {
+      const res = await api.get('/auth/me')
+      set({ user: res.data })
+    } catch {
+      sessionStorage.removeItem('access_token')
+      sessionStorage.removeItem('refresh_token')
+      set({ user: null, token: null })
+    }
+  }
 }))
 
 export default useAuthStore
