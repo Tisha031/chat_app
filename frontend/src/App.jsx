@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Chat from './pages/Chat'
+import Invite from './pages/Invite'
 import useAuthStore from './store/authStore'
 
 function ProtectedRoute({ children }) {
@@ -37,6 +38,7 @@ export default function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/invite/:code" element={<Invite />} />
         <Route path="/" element={
           <ProtectedRoute>
             <Chat />

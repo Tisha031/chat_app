@@ -1,3 +1,4 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
@@ -7,33 +8,26 @@ from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from app.core.config import settings
 from app.core.exceptions import validation_exception_handler, global_exception_handler
-from app.api.v1 import auth, rooms, chat, users
-
-limiter = Limiter(key_func=get_remote_address)
-
-from contextlib import asynccontextmanager
+from app.api.v1 import auth, rooms, chat, users, invites
 from app.db.session import AsyncSessionLocal
 from app.services.room_service import create_public_servers
 
+limiter = Limiter(key_func=get_remote_address)
+
+# ✅ lifespan defined BEFORE app
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     async with AsyncSessionLocal() as db:
         await create_public_servers(db)
     yield
 
+# ✅ app created ONCE with lifespan
 app = FastAPI(
     title="ChatApp API",
     version="1.0.0",
     docs_url=None,
     redoc_url=None,
     lifespan=lifespan,
-)
-
-app = FastAPI(
-    title="ChatApp API",
-    version="1.0.0",
-    docs_url=None,
-    redoc_url=None,
 )
 
 app.add_middleware(
@@ -49,10 +43,12 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 app.add_exception_handler(RequestValidationError, validation_exception_handler)
 app.add_exception_handler(Exception, global_exception_handler)
 
+# ✅ ALL routers registered AFTER app is created
 app.include_router(auth.router, prefix="/api/v1")
 app.include_router(rooms.router, prefix="/api/v1")
 app.include_router(users.router, prefix="/api/v1")
 app.include_router(chat.router)
+app.include_router(invites.router, prefix="/api/v1")
 
 
 @app.get("/", response_class=HTMLResponse, include_in_schema=False)
@@ -153,37 +149,6 @@ async def landing():
             text-align: center;
             padding: 100px 24px 60px;
         }
-        .pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(124,58,237,0.12);
-            border: 1px solid rgba(124,58,237,0.25);
-            color: #a78bfa;
-            padding: 5px 14px;
-            border-radius: 100px;
-            font-size: 12px;
-            font-weight: 500;
-            margin-bottom: 28px;
-        }
-        .pill-dot {
-            width: 5px; height: 5px;
-            background: #a78bfa;
-            border-radius: 50%;
-            animation: blink 2s infinite;
-        }
-        @keyframes blink {
-            0%,100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
-        h1 {
-            font-size: clamp(40px, 5.5vw, 76px);
-            font-weight: 800;
-            letter-spacing: -2.5px;
-            line-height: 1.05;
-            margin-bottom: 20px;
-            max-width: 720px;
-        }
         .grad {
             background: linear-gradient(135deg, #7c3aed, #a855f7 45%, #ec4899);
             -webkit-background-clip: text;
@@ -195,39 +160,6 @@ async def landing():
             line-height: 1.7;
             max-width: 400px;
             margin-bottom: 40px;
-        }
-        .cta { display: flex; gap: 10px; margin-bottom: 72px; }
-        .cta-primary {
-            padding: 13px 28px;
-            background: #7c3aed;
-            color: #fff;
-            border-radius: 10px;
-            font-size: 14px;
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.15s;
-            box-shadow: 0 0 24px rgba(124,58,237,0.35);
-        }
-        .cta-primary:hover {
-            background: #6d28d9;
-            transform: translateY(-1px);
-            box-shadow: 0 0 36px rgba(124,58,237,0.5);
-        }
-        .cta-secondary {
-            padding: 13px 28px;
-            background: rgba(255,255,255,0.04);
-            color: #9ca3af;
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 10px;
-            font-size: 14px;
-            font-weight: 500;
-            text-decoration: none;
-            transition: all 0.15s;
-        }
-        .cta-secondary:hover {
-            background: rgba(255,255,255,0.07);
-            color: #fff;
-            transform: translateY(-1px);
         }
         .preview {
             width: 100%;
@@ -354,7 +286,6 @@ async def landing():
         .f-link:hover { color: #a78bfa; }
         @media (max-width: 600px) {
             nav { padding: 16px 20px; }
-            h1 { letter-spacing: -1.5px; }
             .p-sidebar { display: none; }
             footer { padding: 16px 20px; flex-direction: column; gap: 12px; }
         }
@@ -367,28 +298,17 @@ async def landing():
     <nav>
         <a href="/" class="logo">💬 ChatApp</a>
         <div class="nav-right">
-            <a href="https://github.com/tishuu03/chat_app" target="_blank" class="nav-btn nav-ghost">GitHub</a>
-            <a href="http://localhost:5173" class="nav-btn nav-solid">Open App →</a>
+            <a href="http://localhost:5173" class="nav-btn nav-solid">Start chatting</a>
         </div>
     </nav>
 
     <div class="hero">
-        <div class="pill">
-            <div class="pill-dot"></div>
-            Live · Real-time
-        </div>
-
-        <h1>The chat app<br>built <span class="grad">differently</span></h1>
-
+        <h2 style="font-size:clamp(40px,5.5vw,76px);font-weight:800;letter-spacing:-2.5px;line-height:1.05;margin-bottom:20px;max-width:720px;">
+            The chat app<br>built <span class="grad">differently</span>
+        </h2>
         <p class="sub">
-            Real-time messaging with WebSockets, Redis presence tracking, and JWT auth. Fast by design.
+            Real-time messaging with WebSockets, Redis presence tracking, and JWT auth.
         </p>
-
-        <div class="cta">
-            <a href="http://localhost:5173" class="cta-primary">Start chatting →</a>
-            <a href="https://github.com/tishuu03/chat_app" target="_blank" class="cta-secondary">⭐ GitHub</a>
-        </div>
-
         <div class="preview">
             <div class="preview-bar">
                 <div class="dot" style="background:#ef4444"></div>
@@ -403,24 +323,24 @@ async def landing():
                     <div class="p-ch"># dev</div>
                     <div class="p-label" style="margin-top:14px">Online</div>
                     <div class="p-online"><div class="online-dot"></div>tisha</div>
-                    <div class="p-online"><div class="online-dot"></div>john</div>
+                    <div class="p-online"><div class="online-dot"></div>hit</div>
                 </div>
                 <div class="p-chat">
                     <div class="p-msg">
-                        <div class="p-av" style="background:rgba(124,58,237,0.25);color:#a78bfa">J</div>
-                        <div class="p-bub other">Is the new feature live? 🚀</div>
+                        <div class="p-av" style="background:rgba(124,58,237,0.25);color:#a78bfa">H</div>
+                        <div class="p-bub other">Is the new feature live? 👀</div>
                     </div>
                     <div class="p-msg r">
                         <div class="p-av" style="background:rgba(236,72,153,0.25);color:#f9a8d4">T</div>
-                        <div class="p-bub me">Deployed 5 mins ago ✅</div>
+                        <div class="p-bub me">Deployed 5 mins ago 🚀</div>
                     </div>
                     <div class="p-msg">
-                        <div class="p-av" style="background:rgba(124,58,237,0.25);color:#a78bfa">J</div>
-                        <div class="p-bub other">Real-time sync is insane 🔥</div>
+                        <div class="p-av" style="background:rgba(124,58,237,0.25);color:#a78bfa">H</div>
+                        <div class="p-bub other">Real-time sync is insane ⚡</div>
                     </div>
                     <div class="p-msg r">
                         <div class="p-av" style="background:rgba(236,72,153,0.25);color:#f9a8d4">T</div>
-                        <div class="p-bub me">WebSockets + Redis 😄</div>
+                        <div class="p-bub me">WebSockets + Redis 💪</div>
                     </div>
                 </div>
             </div>
@@ -428,10 +348,8 @@ async def landing():
     </div>
 
     <footer>
-        <div class="f-left">Built by Tisha · FastAPI + WebSockets + Redis</div>
-        <div class="f-right">
-            <a href="https://github.com/tishuu03/chat_app" target="_blank" class="f-link">GitHub</a>
-        </div>
+        <div class="f-left">Built by Tisha</div>
+        <div class="f-right"></div>
     </footer>
 </body>
 </html>

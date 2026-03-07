@@ -23,16 +23,15 @@ export default function RoomPasswordModal({ room, onSuccess, onCancel }) {
     <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
       <div className="bg-gray-800 p-6 rounded-2xl w-96 border border-gray-700 shadow-2xl">
         <div className="text-center mb-6">
-          <p className="text-4xl mb-3">🔒</p>
-          <h2 className="text-white font-bold text-xl">Locked Channel</h2>
+          <h2 className="text-white font-bold text-xl">LOCKED CHANNEL</h2>
           <p className="text-gray-400 text-sm mt-1">
-            <span className="text-purple-400">#{room.name}</span> is password protected
+            <span className="text-purple-400">#{room.name}</span> IS PASSWORD PROTECTED
           </p>
         </div>
 
         <input
           type="password"
-          placeholder="Enter room password"
+          placeholder="ENTER YOUR PASSWORD"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
@@ -46,7 +45,7 @@ export default function RoomPasswordModal({ room, onSuccess, onCancel }) {
             disabled={loading || !password}
             className="flex-1 py-2.5 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white rounded-xl font-medium transition"
           >
-            {loading ? 'Verifying...' : 'Unlock 🔓'}
+            {loading ? 'Verifying...' : 'UNLOCK'}
           </button>
           <button
             onClick={onCancel}

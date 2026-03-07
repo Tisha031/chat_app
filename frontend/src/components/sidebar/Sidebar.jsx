@@ -37,7 +37,7 @@ export default function Sidebar({ onRoomSelect }) {
     try {
       const res = await api.get('/users/online')
       setOnlineUsers(res.data)
-    } catch {}
+    } catch { }
   }
 
   const handleRoomClick = async (room) => {
@@ -45,7 +45,7 @@ export default function Sidebar({ onRoomSelect }) {
       setLockedRoom(room)
       return
     }
-    try { await joinRoom(room.id) } catch {}
+    try { await joinRoom(room.id) } catch { }
     onRoomSelect(room)
   }
 
@@ -96,7 +96,7 @@ export default function Sidebar({ onRoomSelect }) {
 
       {/* Header */}
       <div className="p-4 border-b border-gray-700">
-        <h1 className="text-white font-bold text-lg">💬 ChatApp</h1>
+        <h1 className="text-white font-bold text-lg">ChatApp</h1>
         <div className="flex items-center gap-2 mt-1">
           <div className="w-2 h-2 rounded-full bg-green-400"></div>
           <p className="text-green-400 text-xs">{user?.username}</p>
@@ -109,15 +109,14 @@ export default function Sidebar({ onRoomSelect }) {
         {publicRooms.length > 0 && (
           <div className="mb-4">
             <div className="flex items-center justify-between mb-2 px-2">
-              <span className="text-gray-400 text-xs font-semibold uppercase tracking-wider">🌍 Public Servers</span>
+              <span className="text-gray-400 text-xs font-semibold uppercase tracking-wider">Public Servers</span>
             </div>
             {publicRooms.map((room) => (
               <button
                 key={room.id}
                 onClick={() => handleRoomClick(room)}
-                className={`w-full text-left px-3 py-2 rounded-lg text-sm mb-1 transition flex items-center justify-between ${
-                  activeRoom?.id === room.id ? 'bg-purple-600 text-white' : 'text-gray-300 hover:bg-gray-700'
-                }`}
+                className={`w-full text-left px-3 py-2 rounded-lg text-sm mb-1 transition flex items-center justify-between ${activeRoom?.id === room.id ? 'bg-purple-600 text-white' : 'text-gray-300 hover:bg-gray-700'
+                  }`}
               >
                 <span className="flex items-center gap-2">
                   <span className="text-gray-400">#</span>{room.name}
@@ -135,23 +134,22 @@ export default function Sidebar({ onRoomSelect }) {
           </div>
 
           {customRooms.length === 0 && (
-            <p className="text-gray-500 text-xs px-3 py-2">No custom channels yet</p>
+            <p className="text-gray-500 text-xs  px-3 py-2">No custom channels yet</p>
           )}
 
           {customRooms.map((room) => (
             <button
               key={room.id}
               onClick={() => handleRoomClick(room)}
-              className={`w-full text-left px-3 py-2 rounded-lg text-sm mb-1 transition flex items-center justify-between ${
-                activeRoom?.id === room.id ? 'bg-purple-600 text-white' : 'text-gray-300 hover:bg-gray-700'
-              }`}
+              className={`w-full text-left px-3 py-2 rounded-lg text-sm mb-1 transition flex items-center justify-between ${activeRoom?.id === room.id ? 'bg-purple-600 text-white' : 'text-gray-300 hover:bg-gray-700'
+                }`}
             >
               <span className="flex items-center gap-2">
                 <span className="text-gray-400">#</span>{room.name}
               </span>
               {room.is_locked && (
                 <span title="Password protected">
-                  {unlockedRooms.includes(room.id) ? '🔓' : '🔒'}
+                  {unlockedRooms.includes(room.id) ? '' : ''}
                 </span>
               )}
             </button>
@@ -175,7 +173,7 @@ export default function Sidebar({ onRoomSelect }) {
               <div className="flex gap-2">
                 <input
                   type="text"
-                  placeholder="username"
+                  placeholder=""
                   value={dmUsername}
                   onChange={(e) => setDmUsername(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleStartDm()}
@@ -186,7 +184,7 @@ export default function Sidebar({ onRoomSelect }) {
                   onClick={handleStartDm}
                   className="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white text-sm rounded-lg transition"
                 >
-                  Go
+                  GO
                 </button>
               </div>
             </div>
@@ -201,7 +199,7 @@ export default function Sidebar({ onRoomSelect }) {
           </div>
 
           {onlineUsers.length === 0 && (
-            <p className="text-gray-500 text-xs px-3">No one online yet</p>
+            <p className="text-gray-500 text-xs px-3">No One Online Yet</p>
           )}
 
           {onlineUsers.map((u) => (
@@ -227,10 +225,10 @@ export default function Sidebar({ onRoomSelect }) {
             </div>
             <div>
               <p className="text-white text-sm font-medium">{user?.username}</p>
-              <p className="text-green-400 text-xs">● Active</p>
+              <p className="text-green-400 text-xs">● ACTIVE</p>
             </div>
           </div>
-          <button onClick={logout} className="text-gray-400 hover:text-red-400 text-xs transition">Sign out</button>
+          <button onClick={logout} className="text-gray-400 hover:text-red-400 text-xs transition">SIGN OUT</button>
         </div>
       </div>
 
@@ -238,22 +236,22 @@ export default function Sidebar({ onRoomSelect }) {
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
           <div className="bg-gray-800 p-6 rounded-2xl w-96 shadow-2xl border border-gray-700">
-            <h2 className="text-white font-bold text-xl mb-1">Create a Channel</h2>
-            <p className="text-gray-400 text-sm mb-5">Set up a new channel for your team</p>
+            <h2 className="text-white font-bold text-xl mb-1">CREATE A CHANNEL</h2>
+            <p className="text-gray-400 text-sm mb-5">Set up a new channel</p>
 
-            <label className="text-gray-300 text-sm font-medium">Channel Name</label>
+            <label className="text-gray-300 text-sm font-medium">CHANNEL NAME</label>
             <input
               type="text"
-              placeholder="e.g. general, random, dev"
+              placeholder=""
               value={newRoom.name}
               onChange={(e) => setNewRoom({ ...newRoom, name: e.target.value.toLowerCase().replace(/\s+/g, '-') })}
               className="w-full mt-1 px-4 py-2.5 bg-gray-700 text-white rounded-xl border border-gray-600 focus:outline-none focus:border-purple-500 mb-4"
             />
 
-            <label className="text-gray-300 text-sm font-medium">Description</label>
+            <label className="text-gray-300 text-sm font-medium">DESCRIPTION</label>
             <input
               type="text"
-              placeholder="What's this channel about?"
+              placeholder=""
               value={newRoom.description}
               onChange={(e) => setNewRoom({ ...newRoom, description: e.target.value })}
               className="w-full mt-1 px-4 py-2.5 bg-gray-700 text-white rounded-xl border border-gray-600 focus:outline-none focus:border-purple-500 mb-4"
@@ -262,8 +260,8 @@ export default function Sidebar({ onRoomSelect }) {
             {/* Lock toggle */}
             <div className="flex items-center justify-between mb-4 bg-gray-700 rounded-xl px-4 py-3">
               <div>
-                <p className="text-white text-sm font-medium">🔒 Lock Channel</p>
-                <p className="text-gray-400 text-xs">Require password to join</p>
+                <p className="text-white text-sm font-medium">LOCK CHANNEL</p>
+                <p className="text-gray-400 text-xs">Require Password To Join</p>
               </div>
               <button
                 onClick={() => setNewRoom({ ...newRoom, is_locked: !newRoom.is_locked })}
@@ -285,11 +283,11 @@ export default function Sidebar({ onRoomSelect }) {
 
             <div className="flex gap-3">
               <button onClick={handleCreateRoom} className="flex-1 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-medium transition">
-                Create Channel
+                CREATE CHANNEL
               </button>
               <button onClick={() => { setShowModal(false); setNewRoom({ name: '', description: '', is_locked: false, lock_password: '' }) }}
                 className="flex-1 py-2.5 bg-gray-700 hover:bg-gray-600 text-white rounded-xl font-medium transition">
-                Cancel
+                CANCEL
               </button>
             </div>
           </div>
